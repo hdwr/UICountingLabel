@@ -16,6 +16,8 @@ typedef NSAttributedString* (^UICountingLabelAttributedFormatBlock)(float value)
 @property (nonatomic, strong) NSString *format;
 @property (nonatomic, assign) UILabelCountingMethod method;
 @property (nonatomic, assign) NSTimeInterval animationDuration;
+@property (nonatomic, assign) float destinationValue;
+@property (nonatomic, assign) BOOL currentlyAnimating;
 
 @property (nonatomic, copy) UICountingLabelFormatBlock formatBlock;
 @property (nonatomic, copy) UICountingLabelAttributedFormatBlock attributedFormatBlock;

@@ -70,15 +70,15 @@
 
 -(float) update: (float) t
 {
-	int sign =1;
-	int r = (int) self.rate;
-	if (r % 2 == 0)
-		sign = -1;
-	t *= 2;
-	if (t < 1)
-		return 0.5f * powf (t, self.rate);
-	else
-		return sign*0.5f * (powf (t-2, self.rate) + sign*2);
+    int sign =1;
+    int r = (int) self.rate;
+    if (r % 2 == 0)
+        sign = -1;
+    t *= 2;
+    if (t < 1)
+        return 0.5f * powf (t, self.rate);
+    else
+        return sign*0.5f * (powf (t-2, self.rate) + sign*2);
 }
 
 @end
@@ -88,7 +88,6 @@
 @interface UICountingLabel ()
 
 @property float startingValue;
-@property float destinationValue;
 @property NSTimeInterval progress;
 @property NSTimeInterval lastUpdate;
 @property NSTimeInterval totalTime;
@@ -102,23 +101,23 @@
 @implementation UICountingLabel
 
 -(void)countFrom:(float)value to:(float)endValue {
-    
+
     if (self.animationDuration == 0.0f) {
         self.animationDuration = 2.0f;
     }
-    
+
     [self countFrom:value to:endValue withDuration:self.animationDuration];
 }
 
 -(void)countFrom:(float)startValue to:(float)endValue withDuration:(NSTimeInterval)duration {
-    
+
     self.startingValue = startValue;
     self.destinationValue = endValue;
-    
+
     // remove any (possible) old timers
     [self.timer invalidate];
     self.timer = nil;
-    
+
     if (duration == 0.0) {
         // No animation
         [self setTextValue:endValue];
@@ -156,6 +155,8 @@
     [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
     [[NSRunLoop mainRunLoop] addTimer:timer forMode:UITrackingRunLoopMode];
     self.timer = timer;
+
+    self.currentlyAnimating = YES;
 }
 
 - (void)countFromCurrentValueTo:(float)endValue {
@@ -175,20 +176,22 @@
 }
 
 - (void)updateValue:(NSTimer *)timer {
-    
+
     // update progress
     NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
     self.progress += now - self.lastUpdate;
     self.lastUpdate = now;
-    
+
     if (self.progress >= self.totalTime) {
+        self.currentlyAnimating = NO;
+
         [self.timer invalidate];
         self.timer = nil;
         self.progress = self.totalTime;
     }
-    
+
     [self setTextValue:[self currentValue]];
-    
+
     if (self.progress == self.totalTime) {
         [self runCompletionBlock];
     }
@@ -224,7 +227,7 @@
 }
 
 - (void)runCompletionBlock {
-    
+
     if (self.completionBlock) {
         self.completionBlock();
         self.completionBlock = nil;
@@ -232,11 +235,11 @@
 }
 
 - (CGFloat)currentValue {
-    
+
     if (self.progress >= self.totalTime) {
         return self.destinationValue;
     }
-    
+
     CGFloat percent = self.progress / self.totalTime;
     CGFloat updateVal = [self.counter update:percent];
     return self.startingValue + (updateVal * (self.destinationValue - self.startingValue));
